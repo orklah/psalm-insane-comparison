@@ -1,0 +1,31 @@
+{
+    "name": "orklah/psalm-insane-comparison",
+    "description": "Detects possible insane comparison (\"string\" == 0) to help migrate to PHP8",
+    "type": "psalm-plugin",
+    "minimum-stability": "stable",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "orklah"
+        }
+    ],
+    "extra": {
+        "psalm" : {
+            "pluginClass": "Orklah\\PsalmInsaneComparison\\Plugin"
+        }
+    },
+    "require": {
+        "php": "^7.3",
+        "ext-simplexml": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Orklah\\PsalmInsaneComparison\\": ["."],
+            "Orklah\\PsalmInsaneComparison\\Hooks\\": ["hooks"]
+        }
+    },
+    "require-dev": {
+        "vimeo/psalm": "^4.0",
+        "nikic/php-parser": "^4.0"
+    }
+}
