@@ -5,10 +5,6 @@ declare(strict_types=1);
 namespace Orklah\PsalmInsaneComparison\Hooks;
 
 use PhpParser\Node\Expr;
-use PhpParser\Node\Expr\Variable;
-use PhpParser\Node\Scalar\DNumber;
-use PhpParser\Node\Scalar\LNumber;
-use PhpParser\Node\Scalar\String_;
 use Psalm\Codebase;
 use Psalm\CodeLocation;
 use Psalm\Context;
@@ -16,15 +12,11 @@ use Psalm\Issue\PluginIssue;
 use Psalm\IssueBuffer;
 use Psalm\Plugin\Hook\AfterExpressionAnalysisInterface;
 use Psalm\StatementsSource;
-use Psalm\Type\Atomic\TCallableString;
-use Psalm\Type\Atomic\TClassString;
-use Psalm\Type\Atomic\TLiteralClassString;
 use Psalm\Type\Atomic\TLiteralInt;
 use Psalm\Type\Atomic\TLiteralString;
 use Psalm\Type\Atomic\TNumericString;
 use Psalm\Type\Atomic\TPositiveInt;
 use Psalm\Type\Atomic\TSingleLetter;
-use Psalm\Type\Atomic\TTraitString;
 
 class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
 {

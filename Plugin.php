@@ -1,5 +1,5 @@
 <?php
-namespace Orklah\PsalmStrictVisibility;
+namespace Orklah\PsalmInsaneComparison;
 
 use Orklah\PsalmInsaneComparison\Hooks\InsaneComparison;
 use SimpleXMLElement;
