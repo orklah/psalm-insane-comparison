@@ -35,7 +35,7 @@ You can solve this issue in a lot of ways:
 ```php
 $a = 'banana';
 $b = 0;
-if($a == $b){
+if($a === $b){
     echo 'This is impossible';
 }
 else{
