@@ -11,6 +11,6 @@
         <file name="sandbox.php"/>
     </projectFiles>
     <plugins>
-        <plugin filename="hooks/InsaneComparison.php" />
+        <plugin filename="hooks/InsaneComparisonAnalyzer.php" />
     </plugins>
 </psalm>

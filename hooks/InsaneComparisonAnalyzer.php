@@ -8,13 +8,14 @@ use PhpParser\Node\Expr;
 use Psalm\Codebase;
 use Psalm\CodeLocation;
 use Psalm\Context;
+use Psalm\Internal\Type\Comparator\UnionTypeComparator;
 use Psalm\Issue\PluginIssue;
 use Psalm\IssueBuffer;
 use Psalm\Plugin\Hook\AfterExpressionAnalysisInterface;
 use Psalm\StatementsSource;
+use Psalm\Type;
 use Psalm\Type\Atomic\TLiteralInt;
 use Psalm\Type\Atomic\TLiteralString;
-use Psalm\Type\Atomic\TNumericString;
 use Psalm\Type\Atomic\TPositiveInt;
 use Psalm\Type\Atomic\TSingleLetter;
 
@@ -26,56 +27,106 @@ class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
         StatementsSource $statements_source,
         Codebase $codebase,
         array &$file_replacements = []
-    ): ?bool {
-        if(!$expr instanceof Expr\BinaryOp\Equal && !$expr instanceof Expr\BinaryOp\NotEqual){
+    ): ?bool
+    {
+        if (!$expr instanceof Expr\BinaryOp\Equal && !$expr instanceof Expr\BinaryOp\NotEqual) {
             return true;
         }
 
         $left_type = $statements_source->getNodeTypeProvider()->getType($expr->left);
         $right_type = $statements_source->getNodeTypeProvider()->getType($expr->right);
 
-        if($left_type === null || $right_type === null){
+        if ($left_type === null || $right_type === null) {
             return true;
         }
 
-        if($left_type->isString() && $right_type->isInt()){
-            $string_type = $left_type;
-            $int_type = $right_type;
-        } elseif($left_type->isInt() && $right_type->isString()) {
-            $string_type = $right_type;
-            $int_type = $left_type;
-        }
-        else{
-            //probably false negatives here because lots of union types get through?
-            return true;
-        }
+        //on one hand, we're searching for literal 0
+        $literal_0 = Type::getInt(false, 0);
+        $left_contain_0 = false;
+        $right_contain_0 = false;
 
-        if(
-            $int_type instanceof TPositiveInt ||
-            ($int_type instanceof TLiteralInt && $int_type->value !== 0)
-        ){
-            // not interested, we search for literal 0
-            return true;
-        }
-
-        if(
-            $string_type instanceof TNumericString ||
-            ($string_type instanceof TLiteralString && !preg_match('#[a-zA-Z]#', $string_type->value[0] ?? '')) ||
-            ($string_type instanceof TSingleLetter && !preg_match('#[a-zA-Z]#', $string_type->value[0] ?? ''))
-        ){
-            // not interested, we search strings that begins with a letter
-            return true;
-        }
-
-        if (IssueBuffer::accepts(
-            new InsaneComparison(
-                'Possible Insane Comparison between ' . $string_type->getKey() . ' and ' . $int_type->getKey(),
-                new CodeLocation($statements_source, $expr)
-            ),
-            $statements_source->getSuppressedIssues()
-        )
+        if (UnionTypeComparator::isContainedBy(
+            $codebase,
+            $literal_0,
+            $left_type,
+            true,
+            true)
         ) {
-            // continue
+            //Left type may contain 0
+            $int_operand = $left_type;
+            $other_operand = $right_type;
+            $left_contain_0 = true;
+        }
+
+        if (UnionTypeComparator::isContainedBy(
+            $codebase,
+            $literal_0,
+            $right_type,
+            true,
+            true)
+        ) {
+            //Right type may contain 0
+            $int_operand = $right_type;
+            $other_operand = $left_type;
+            $right_contain_0 = true;
+        }
+
+        if (!$left_contain_0 && !$right_contain_0) {
+            // Not interested
+            return true;
+        } elseif ($left_contain_0 && $right_contain_0) {
+            //This is pretty inconclusive
+            return true;
+        }
+
+        //On the other hand, we're searching for any non-numeric non-empty string
+        if (!$other_operand->hasString()) {
+            //we can stop here, there's no string in here
+            return true;
+        }
+
+        $string_operand = $other_operand;
+
+        $eligible_int = null;
+        foreach ($int_operand->getAtomicTypes() as $possibly_int) {
+            if ($possibly_int instanceof TLiteralInt && $possibly_int->value === 0) {
+                $eligible_int = $possibly_int;
+                break;
+            } elseif ($possibly_int instanceof TPositiveInt) {
+                //not interested
+                continue;
+            } elseif ($possibly_int instanceof Type\Atomic\TInt) {
+                // we found a general Int, it may contain 0
+                $eligible_int = $possibly_int;
+                break;
+            }
+        }
+
+        $eligible_string = null;
+        foreach ($string_operand->getAtomicTypes() as $possibly_string) {
+            if ($possibly_string instanceof TLiteralString && preg_match('#[a-zA-Z]#', $possibly_string->value[0] ?? '')) {
+                $eligible_string = $possibly_string;
+                break;
+            } elseif ($possibly_string instanceof TSingleLetter && preg_match('#[a-zA-Z]#', $possibly_string->value[0] ?? '')) {
+                $eligible_string = $possibly_string;
+                break;
+            } elseif ($possibly_string instanceof Type\Atomic\TString) {
+                $eligible_string = $possibly_string;
+                break;
+            }
+        }
+
+        if ($eligible_int !== null && $eligible_string !== null) {
+            if (IssueBuffer::accepts(
+                new InsaneComparison(
+                    'Possible Insane Comparison between ' . $eligible_string->getKey() . ' and ' . $eligible_int->getKey(),
+                    new CodeLocation($statements_source, $expr)
+                ),
+                $statements_source->getSuppressedIssues()
+            )
+            ) {
+                // continue
+            }
         }
 
         return true;
