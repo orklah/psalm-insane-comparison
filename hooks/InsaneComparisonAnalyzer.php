@@ -104,12 +104,21 @@ class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
 
         $eligible_string = null;
         foreach ($string_operand->getAtomicTypes() as $possibly_string) {
-            if ($possibly_string instanceof TLiteralString && preg_match('#[a-zA-Z]#', $possibly_string->value[0] ?? '')) {
-                $eligible_string = $possibly_string;
-                break;
+            if ($possibly_string instanceof TLiteralString) {
+                if(preg_match('#[a-zA-Z]#', $possibly_string->value[0] ?? '')) {
+                    $eligible_string = $possibly_string;
+                    break;
+                }
+                continue;
             } elseif ($possibly_string instanceof TSingleLetter && preg_match('#[a-zA-Z]#', $possibly_string->value[0] ?? '')) {
-                $eligible_string = $possibly_string;
-                break;
+                if(preg_match('#[a-zA-Z]#', $possibly_string->value[0] ?? '')) {
+                    $eligible_string = $possibly_string;
+                    break;
+                }
+                continue;
+            } elseif ($possibly_string instanceof Type\Atomic\TNumericString) {
+                // not interested
+                continue;
             } elseif ($possibly_string instanceof Type\Atomic\TString) {
                 $eligible_string = $possibly_string;
                 break;
