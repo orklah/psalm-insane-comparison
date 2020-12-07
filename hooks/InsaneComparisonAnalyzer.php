@@ -105,7 +105,7 @@ class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
         $eligible_string = null;
         foreach ($string_operand->getAtomicTypes() as $possibly_string) {
             if ($possibly_string instanceof TLiteralString) {
-                if(!preg_match('#\D#', $possibly_string->value[0] ?? '')) {
+                if(preg_match('#\D#', $possibly_string->value[0] ?? '')) {
                     $eligible_string = $possibly_string;
                     break;
                 }
