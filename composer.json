@@ -27,5 +27,10 @@
     "require-dev": {
         "vimeo/psalm": "^4.0",
         "nikic/php-parser": "^4.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true
+        }
     }
 }
