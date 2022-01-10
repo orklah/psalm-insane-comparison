@@ -5,30 +5,29 @@ declare(strict_types=1);
 namespace Orklah\PsalmInsaneComparison\Hooks;
 
 use PhpParser\Node\Expr;
-use Psalm\Codebase;
 use Psalm\CodeLocation;
-use Psalm\Context;
 use Psalm\Internal\Type\Comparator\UnionTypeComparator;
 use Psalm\Issue\PluginIssue;
 use Psalm\IssueBuffer;
-use Psalm\Plugin\Hook\AfterExpressionAnalysisInterface;
-use Psalm\StatementsSource;
+use Psalm\Plugin\EventHandler\AfterExpressionAnalysisInterface;
+use Psalm\Plugin\EventHandler\Event\AfterExpressionAnalysisEvent;
 use Psalm\Type;
 use Psalm\Type\Atomic\TLiteralInt;
 use Psalm\Type\Atomic\TLiteralString;
 use Psalm\Type\Atomic\TPositiveInt;
-use Psalm\Type\Atomic\TSingleLetter;
 
 class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
 {
-    public static function afterExpressionAnalysis(
-        Expr $expr,
-        Context $context,
-        StatementsSource $statements_source,
-        Codebase $codebase,
-        array &$file_replacements = []
-    ): ?bool
+    /**
+     * Called after an expression has been checked
+     *
+     * @return null|false
+     */
+    public static function afterExpressionAnalysis(AfterExpressionAnalysisEvent $event): ?bool
     {
+        $expr = $event->getExpr();
+        $statements_source = $event->getStatementsSource();
+        $codebase = $event->getCodebase();
         if (!$expr instanceof Expr\BinaryOp\Equal && !$expr instanceof Expr\BinaryOp\NotEqual) {
             return true;
         }
