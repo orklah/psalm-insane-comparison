@@ -28,7 +28,13 @@ class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
         $expr = $event->getExpr();
         $statements_source = $event->getStatementsSource();
         $codebase = $event->getCodebase();
-        if (!$expr instanceof Expr\BinaryOp\Equal && !$expr instanceof Expr\BinaryOp\NotEqual) {
+        if (!$expr instanceof Expr\BinaryOp\Equal 
+            && !$expr instanceof Expr\BinaryOp\NotEqual 
+            && !$expr instanceof Expr\BinaryOp\Greater 
+            && !$expr instanceof Expr\BinaryOp\GreaterOrEqual
+            && !$expr instanceof Expr\BinaryOp\Smaller 
+            && !$expr instanceof Expr\BinaryOp\SmallerOrEqual
+           ) {
             return true;
         }
 
