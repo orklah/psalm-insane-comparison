@@ -12,16 +12,18 @@ use Psalm\IssueBuffer;
 use Psalm\Plugin\EventHandler\AfterExpressionAnalysisInterface;
 use Psalm\Plugin\EventHandler\Event\AfterExpressionAnalysisEvent;
 use Psalm\Type;
+use Psalm\Type\Atomic\TIntRange;
 use Psalm\Type\Atomic\TLiteralInt;
 use Psalm\Type\Atomic\TLiteralString;
 use Psalm\Type\Atomic\TPositiveInt;
 
+/** 
+ * @api
+ */
 class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
 {
     /**
      * Called after an expression has been checked
-     *
-     * @return null|false
      */
     public static function afterExpressionAnalysis(AfterExpressionAnalysisEvent $event): ?bool
     {
@@ -35,20 +37,22 @@ class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
             && !$expr instanceof Expr\BinaryOp\Smaller 
             && !$expr instanceof Expr\BinaryOp\SmallerOrEqual
            ) {
-            return true;
+            return null;
         }
 
         $left_type = $statements_source->getNodeTypeProvider()->getType($expr->left);
         $right_type = $statements_source->getNodeTypeProvider()->getType($expr->right);
 
         if ($left_type === null || $right_type === null) {
-            return true;
+            return null;
         }
 
         //on one hand, we're searching for literal 0
         $literal_0 = Type::getInt(false, 0);
         $left_contain_0 = false;
         $right_contain_0 = false;
+        $other_operand = null;
+        $int_operand = null;
 
         if (UnionTypeComparator::isContainedBy(
             $codebase,
@@ -78,17 +82,19 @@ class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
 
         if (!$left_contain_0 && !$right_contain_0) {
             // Not interested
-            return true;
+            return null;
         } elseif ($left_contain_0 && $right_contain_0) {
             //This is pretty inconclusive
-            return true;
+            return null;
         }
+        assert($other_operand !== null);
 
         //On the other hand, we're searching for any non-numeric non-empty string
         if (!$other_operand->hasString()) {
             //we can stop here, there's no string in here
-            return true;
+            return null;
         }
+        assert($int_operand !== null);
 
         $string_operand = $other_operand;
 
@@ -98,6 +104,12 @@ class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
                 $eligible_int = $possibly_int;
                 break;
             } elseif ($possibly_int instanceof TPositiveInt) {
+                //not interested
+                continue;
+            } elseif ($possibly_int instanceof TIntRange 
+                && ($possibly_int->min_bound > 0
+                || $possibly_int->max_bound < 0
+            )) {
                 //not interested
                 continue;
             } elseif ($possibly_int instanceof Type\Atomic\TInt) {
@@ -137,11 +149,12 @@ class InsaneComparisonAnalyzer implements AfterExpressionAnalysisInterface
             }
         }
 
-        return true;
+        return null;
     }
 }
 
 
+/** @api */
 class InsaneComparison extends PluginIssue
 {
 }

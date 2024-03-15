@@ -9,6 +9,7 @@
 >
     <projectFiles>
         <file name="sandbox.php"/>
+        <directory name="hooks"/>
     </projectFiles>
     <plugins>
         <plugin filename="hooks/InsaneComparisonAnalyzer.php" />
