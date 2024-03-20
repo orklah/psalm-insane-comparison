@@ -16,7 +16,8 @@
     },
     "require": {
         "php": "^7.3|^8.0",
-        "ext-simplexml": "*"
+        "ext-simplexml": "*",
+        "vimeo/psalm": "^4|^5|dev-master"
     },
     "autoload": {
         "psr-4": {
@@ -25,7 +26,6 @@
         }
     },
     "require-dev": {
-        "vimeo/psalm": "dev-master",
         "nikic/php-parser": "^4.0|^5"
     },
     "config": {
