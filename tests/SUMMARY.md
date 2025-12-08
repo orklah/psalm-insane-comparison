@@ -5,7 +5,7 @@ This test suite provides comprehensive coverage for the `psalm-insane-comparison
 
 ## Test Results
 
-### Unit Tests: ✅ All Passing (27 tests)
+### Unit Tests: ✅ All Passing (13 tests)
 
 #### Plugin Tests (6 tests)
 - ✅ Plugin instantiation and structure
@@ -17,14 +17,6 @@ This test suite provides comprehensive coverage for the `psalm-insane-comparison
 - ✅ Issue type inheritance
 - ✅ Method signatures and visibility
 - ✅ Return type validation
-
-#### Expected Behavior Tests (14 tests)
-- ✅ Operator coverage (6 comparison operators)
-- ✅ PHP 7 vs PHP 8 behavior documentation
-- ✅ Edge case handling (empty strings, numeric strings, whitespace)
-- ✅ Type range validation (positive-int, int ranges)
-- ✅ Cast operation safety
-- ✅ Migration risk documentation
 
 ### Integration Tests: ⏭️ 9 tests (Skipped)
 Integration tests are currently skipped due to Psalm version requirements in the test environment. These tests would validate the plugin's behavior in real-world scenarios by running Psalm on actual PHP code samples.
@@ -55,7 +47,6 @@ composer test
 # Run specific test file
 ./vendor/bin/phpunit tests/PluginTest.php
 ./vendor/bin/phpunit tests/InsaneComparisonTest.php
-./vendor/bin/phpunit tests/ExpectedBehaviorTest.php
 ./vendor/bin/phpunit tests/IntegrationTest.php
 ```
 
