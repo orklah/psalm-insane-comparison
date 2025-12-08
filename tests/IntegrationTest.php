@@ -12,8 +12,11 @@ use PHPUnit\Framework\TestCase;
  */
 class IntegrationTest extends TestCase
 {
-    private string $testFilesDir;
-    private string $projectRoot;
+    /** @var string */
+    private $testFilesDir;
+    
+    /** @var string */
+    private $projectRoot;
 
     protected function setUp(): void
     {
@@ -80,12 +83,12 @@ XML;
         $outputString = implode("\n", $output);
         
         // Check if Psalm version issue
-        if (str_contains($outputString, 'Psalm requires a PHP version')) {
+        if (strpos($outputString, 'Psalm requires a PHP version') !== false) {
             $this->markTestSkipped('Psalm version requirement not met: ' . $outputString);
         }
         
         // Check for actual issues reported
-        if (str_contains($outputString, 'InsaneComparison')) {
+        if (strpos($outputString, 'InsaneComparison') !== false) {
             return ['has_issue' => true];
         }
         
@@ -124,7 +127,7 @@ XML;
         }
         
         foreach ($allIssues as $issue) {
-            if (isset($issue['type']) && str_contains($issue['type'], 'InsaneComparison')) {
+            if (isset($issue['type']) && strpos($issue['type'], 'InsaneComparison') !== false) {
                 return true;
             }
         }
