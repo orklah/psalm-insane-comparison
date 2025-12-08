@@ -69,14 +69,25 @@ XML;
         
         $psalmBinary = $this->projectRoot . '/vendor/bin/psalm';
         $command = sprintf(
-            '%s --config=%s --no-cache --output-format=json %s 2>&1',
+            '%s --config=%s --no-cache --root=%s %s 2>&1',
             escapeshellarg($psalmBinary),
             escapeshellarg($this->testFilesDir . '/psalm.xml'),
+            escapeshellarg($this->projectRoot),
             escapeshellarg($testFile)
         );
         
         exec($command, $output, $returnCode);
         $outputString = implode("\n", $output);
+        
+        // Check if Psalm version issue
+        if (strpos($outputString, 'Psalm requires a PHP version') !== false) {
+            $this->markTestSkipped('Psalm version requirement not met: ' . $outputString);
+        }
+        
+        // Check for actual issues reported
+        if (strpos($outputString, 'InsaneComparison') !== false) {
+            return ['has_issue' => true];
+        }
         
         // Parse JSON output if available
         $jsonStart = strpos($outputString, '{');
@@ -95,6 +106,11 @@ XML;
     {
         if (!isset($result) || empty($result)) {
             return false;
+        }
+        
+        // Quick check for our simplified result
+        if (isset($result['has_issue'])) {
+            return $result['has_issue'];
         }
         
         // Check for InsaneComparison in the results

@@ -38,5 +38,10 @@
         "allow-plugins": {
             "composer/package-versions-deprecated": true
         }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-text",
+        "test-detailed": "phpunit --testdox"
     }
 }
