@@ -73,7 +73,11 @@ The test suite validates:
 5. Strict comparison operators (===, !==)
 6. Cast operations ((int)$str == 0 or $str == (string)0)
 7. Numeric-string type annotation
-8. Empty strings (special case: behavior unchanged in PHP 8)
+
+### ⚠️ Known Issues
+1. **Empty strings**: Currently may not be detected, but behavior DID change:
+   - PHP 7: `"" == 0` is `true`
+   - PHP 8: `"" == 0` is `false`
 
 ## Test Philosophy
 
@@ -95,9 +99,12 @@ The plugin targets this breaking change:
 "banana" == 0
 ```
 
-### Special Cases Correctly Handled
+### Special Cases
 
-1. **Empty strings**: `"" == 0` is still `true` in PHP 8 (not flagged)
+1. **Empty strings**: Behavior DID change in PHP 8:
+   - PHP 7: `"" == 0` is `true`
+   - PHP 8: `"" == 0` is `false`
+   - Currently may not be flagged by the plugin (see failing test)
 2. **Numeric strings**: `"123" == 0` behaves consistently (not flagged)
 3. **String "0"**: `"0" == 0` is `true` in both versions (not flagged)
 
@@ -129,7 +136,6 @@ When adding new features or fixing bugs:
 
 - **PluginTest.php**: Tests the Plugin entry point class
 - **InsaneComparisonTest.php**: Tests the InsaneComparisonAnalyzer hook structure
-- **ExpectedBehaviorTest.php**: Documents and tests expected PHP behavior
 - **IntegrationTest.php**: End-to-end tests running actual Psalm analysis
 - **README.md**: Comprehensive test documentation
 - **SUMMARY.md**: This file - test results and overview

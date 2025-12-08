@@ -328,4 +328,30 @@ PHP;
             'Should NOT detect issue with int range excluding 0'
         );
     }
+
+    /**
+     * Test: Empty string compared to 0 should trigger InsaneComparison
+     * 
+     * This test documents that empty strings SHOULD be flagged because their
+     * behavior changed between PHP 7 and PHP 8:
+     * - PHP 7: "" == 0 is true
+     * - PHP 8: "" == 0 is false
+     * 
+     * @group failing
+     */
+    public function testDetectsEmptyStringEqualsZero(): void
+    {
+        $code = <<<'PHP'
+<?php
+if ("" == 0) {
+    echo "PHP 7 displays this";
+}
+PHP;
+        
+        $result = $this->runPsalm($code);
+        $this->assertTrue(
+            $this->hasInsaneComparisonIssue($result),
+            'Should detect insane comparison: "" == 0 (behavior changed in PHP 8)'
+        );
+    }
 }

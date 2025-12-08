@@ -127,7 +127,10 @@ The plugin will NOT report issues for:
 - `positive-int` type (can't be 0)
 - Int ranges excluding 0 (e.g., `int<1, 100>`)
 - Comparisons with explicit casts
-- Empty strings (behavior unchanged in PHP 8)
+
+**Note:** Empty strings (`""`) currently may not be detected, but their behavior DID change:
+- PHP 7: `"" == 0` is `true`
+- PHP 8: `"" == 0` is `false`
 
 ## Contributing
 
