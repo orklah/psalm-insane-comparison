@@ -80,12 +80,12 @@ XML;
         $outputString = implode("\n", $output);
         
         // Check if Psalm version issue
-        if (strpos($outputString, 'Psalm requires a PHP version') !== false) {
+        if (str_contains($outputString, 'Psalm requires a PHP version')) {
             $this->markTestSkipped('Psalm version requirement not met: ' . $outputString);
         }
         
         // Check for actual issues reported
-        if (strpos($outputString, 'InsaneComparison') !== false) {
+        if (str_contains($outputString, 'InsaneComparison')) {
             return ['has_issue' => true];
         }
         
@@ -124,7 +124,7 @@ XML;
         }
         
         foreach ($allIssues as $issue) {
-            if (isset($issue['type']) && strpos($issue['type'], 'InsaneComparison') !== false) {
+            if (isset($issue['type']) && str_contains($issue['type'], 'InsaneComparison')) {
                 return true;
             }
         }
