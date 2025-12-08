@@ -26,11 +26,22 @@
         }
     },
     "require-dev": {
-        "nikic/php-parser": "^4.0|^5"
+        "nikic/php-parser": "^4.0|^5",
+        "phpunit/phpunit": "^9.5|^10.0|^11.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Orklah\\PsalmInsaneComparison\\Tests\\": "tests/"
+        }
     },
     "config": {
         "allow-plugins": {
             "composer/package-versions-deprecated": true
         }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-text",
+        "test-detailed": "phpunit --testdox"
     }
 }

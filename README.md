@@ -85,3 +85,60 @@ else{
     echo 'PHP 7 and 8 will both display this depending on the value of $a';
 }
 ```
+
+## Development
+
+### Running Tests
+
+The plugin includes a comprehensive test suite:
+
+```console
+$ composer test              # Run all tests
+$ composer test-detailed     # Run tests with detailed output
+$ composer test-coverage     # Run tests with coverage report
+```
+
+Or directly with PHPUnit:
+```console
+$ ./vendor/bin/phpunit
+$ ./vendor/bin/phpunit --testdox
+$ ./vendor/bin/phpunit tests/PluginTest.php
+```
+
+### Test Suite
+
+The test suite includes:
+- **Unit Tests**: Validate plugin structure and hook implementation
+- **Expected Behavior Tests**: Document PHP 7 vs PHP 8 comparison behavior
+- **Integration Tests**: Test real-world scenarios with Psalm analysis
+
+See [tests/README.md](tests/README.md) for detailed test documentation.
+
+### What Gets Detected
+
+The plugin will report `InsaneComparison` issues for:
+- Non-numeric strings compared to 0 with `==`, `!=`, `>`, `>=`, `<`, `<=`
+- General `string` or `int` types that may include problematic values
+
+The plugin will NOT report issues for:
+- Strict comparisons (`===`, `!==`)
+- Numeric strings (e.g., `"123"`)
+- `numeric-string` type annotations
+- `positive-int` type (can't be 0)
+- Int ranges excluding 0 (e.g., `int<1, 100>`)
+- Comparisons with explicit casts
+
+**Note:** Empty strings (`""`) currently may not be detected, but their behavior DID change:
+- PHP 7: `"" == 0` is `true`
+- PHP 8: `"" == 0` is `false`
+
+## Contributing
+
+Contributions are welcome! Please:
+1. Run the test suite before submitting PRs
+2. Add tests for new functionality
+3. Update documentation as needed
+
+## License
+
+MIT
